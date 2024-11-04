@@ -4,6 +4,8 @@ const mysql = require('mysql2');
 const app = express();
 const PORT = 3000;
 
+app.use(express.json());
+
 // MySQL Database Connection
 const db = mysql.createConnection({
   host: '193.203.166.160',
@@ -21,6 +23,7 @@ db.connect((err) => {
   }
   console.log('Connected to MySQL database');
 });
+
 
 // Endpoint to get users
 app.get('/inventorystatus', (req, res) => {
