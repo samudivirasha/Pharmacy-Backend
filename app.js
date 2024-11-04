@@ -1,36 +1,28 @@
 // app.js
-const express = require('express');
-const mysql = require('mysql2');
+const express = require("express");
+const mysql = require("mysql2");
 const app = express();
 const PORT = 3000;
 
 app.use(express.json());
 
-// MySQL Database Connection
-const db = mysql.createConnection({
-  host: '193.203.166.160',
-  user: 'u392776179_adbms',  
-  password: 'u392776179_ADBMS',  
-  database: 'u392776179_adbms',  
-
+// MySQL Database Connection Pool
+const pool = mysql.createPool({
+  host: "193.203.166.160",
+  user: "u392776179_adbms",
+  password: "u392776179_ADBMS",
+  database: "u392776179_adbms",
+  waitForConnections: true,
+  connectionLimit: 10, // Max number of connections in the pool
+  queueLimit: 0, // No limit on queue size for pending connections
 });
-
-// Connect to MySQL
-db.connect((err) => {
-  if (err) {
-    console.error('Error connecting to the database:', err);
-    return;
-  }
-  console.log('Connected to MySQL database');
-});
-
 
 // Endpoint to get users
-app.get('/inventorystatus', (req, res) => {
-  const query = 'SELECT * FROM InventoryStatus';
-  db.query(query, (err, results) => {
+app.get("/inventorystatus", (req, res) => {
+  const query = "SELECT * FROM InventoryStatus";
+  pool.query(query, (err, results) => {
     if (err) {
-      res.status(500).send('Error retrieving inventory');
+      res.status(500).send("Error retrieving inventory");
       console.log(err);
       return;
     }
@@ -38,12 +30,11 @@ app.get('/inventorystatus', (req, res) => {
   });
 });
 
-
-app.get('/MonthlySalesReport', (req, res) => {
-  const query = 'SELECT * FROM MonthlySalesReport';
-  db.query(query, (err, results) => {
+app.get("/MonthlySalesReport", (req, res) => {
+  const query = "SELECT * FROM MonthlySalesReport";
+  pool.query(query, (err, results) => {
     if (err) {
-      res.status(500).send('Error retrieving MonthlySalesReport');
+      res.status(500).send("Error retrieving MonthlySalesReport");
       console.log(err);
       return;
     }
@@ -51,12 +42,11 @@ app.get('/MonthlySalesReport', (req, res) => {
   });
 });
 
-
-app.get('/CustomerPurchaseHistory', (req, res) => {
-  const query = 'SELECT * FROM CustomerPurchaseHistory';
-  db.query(query, (err, results) => {
+app.get("/CustomerPurchaseHistory", (req, res) => {
+  const query = "SELECT * FROM CustomerPurchaseHistory";
+  pool.query(query, (err, results) => {
     if (err) {
-      res.status(500).send('Error retrieving purchase history');
+      res.status(500).send("Error retrieving purchase history");
       console.log(err);
       return;
     }
@@ -64,12 +54,11 @@ app.get('/CustomerPurchaseHistory', (req, res) => {
   });
 });
 
-
-app.get('/ProductSalesSummary', (req, res) => {
-  const query = 'SELECT * FROM ProductSalesSummary';
-  db.query(query, (err, results) => {
+app.get("/ProductSalesSummary", (req, res) => {
+  const query = "SELECT * FROM ProductSalesSummary";
+  pool.query(query, (err, results) => {
     if (err) {
-      res.status(500).send('Error retrieving ProductSalesSummary');
+      res.status(500).send("Error retrieving ProductSalesSummary");
       console.log(err);
       return;
     }
@@ -77,12 +66,11 @@ app.get('/ProductSalesSummary', (req, res) => {
   });
 });
 
-
-app.get('/showBill', (req, res) => {
-  const query = 'SELECT * FROM showBill';
-  db.query(query, (err, results) => {
+app.get("/showBill", (req, res) => {
+  const query = "SELECT * FROM showBill";
+  pool.query(query, (err, results) => {
     if (err) {
-      res.status(500).send('Error retrieving bill');
+      res.status(500).send("Error retrieving bill");
       console.log(err);
       return;
     }
@@ -90,13 +78,11 @@ app.get('/showBill', (req, res) => {
   });
 });
 
-
-
-app.get('/SupplierDeliverSchedule', (req, res) => {
-  const query = 'SELECT * FROM SupplierDeliverSchedule';
-  db.query(query, (err, results) => {
+app.get("/SupplierDeliverSchedule", (req, res) => {
+  const query = "SELECT * FROM SupplierDeliverSchedule";
+  pool.query(query, (err, results) => {
     if (err) {
-      res.status(500).send('Error retrieving SupplierDeliverSchedule');
+      res.status(500).send("Error retrieving SupplierDeliverSchedule");
       console.log(err);
       return;
     }
@@ -104,10 +90,22 @@ app.get('/SupplierDeliverSchedule', (req, res) => {
   });
 });
 
+// Add customer endpoint
+app.post("/addcustomer", (req, res) => {
+  const { customer, mobileno } = req.body;
+  const query = `CALL AddCustomer(?, ?);`;
 
+  pool.query(query, [customer, mobileno], (err, results) => {
+    if (err) {
+      res.status(500).send("Error adding customer");
+      console.log(err);
+      return;
+    }
+    res.json(results);
+  });
+});
 
 // Start the Express server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
-
