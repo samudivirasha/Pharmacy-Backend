@@ -105,6 +105,37 @@ app.post("/addcustomer", (req, res) => {
   });
 });
 
+app.post("/addorder", (req, res) => {
+  const { customerId, productIds, quantities } = req.body;
+  const query = `SELECT AddOrder(?, ?, ?);`;
+
+
+  pool.query(query, [customerId, productIds, quantities], (err, results) => {
+    if (err) {
+      res.status(500).send("Error processing order");
+      console.log(err);
+      return;
+    }
+    res.json(results);
+  });
+});
+
+app.post("/addproductstoinventory", (req, res) => {
+  const { productIds, quantities } = req.body;
+  const query = `SELECT AddProductsToInventory(?, ?);`;
+
+
+  pool.query(query, [productIds, quantities], (err, results) => {
+    if (err) {
+      res.status(500).send("Error adding products to inventory");
+      console.log(err);
+      return;
+    }
+    res.json(results);
+  });
+});
+
+
 // Start the Express server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
