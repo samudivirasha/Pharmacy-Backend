@@ -78,11 +78,11 @@ app.get("/showBill", (req, res) => {
   });
 });
 
-app.get("/SupplierDeliverSchedule", (req, res) => {
-  const query = "SELECT * FROM SupplierDeliverSchedule";
+app.get("/SupplierDeliverySchedule", (req, res) => {
+  const query = "SELECT * FROM SupplierDeliverySchedule";
   pool.query(query, (err, results) => {
     if (err) {
-      res.status(500).send("Error retrieving SupplierDeliverSchedule");
+      res.status(500).send("Error retrieving SupplierDeliverySchedule");
       console.log(err);
       return;
     }
