@@ -106,14 +106,20 @@ app.post("/addcustomer", (req, res) => {
 });
 
 app.post("/addorder", (req, res) => {
-  const { customerId, productIds, quantities } = req.body;
-  const query = `SELECT AddOrder(?, ?, ?);`;
+  const { uid, order } = req.body;
 
+  // Extract product IDs and quantities from the order array
+  const productIDs = order.map((item) => item[0]).join(",");
+  const quantities = order.map((item) => item[1]).join(",");
 
-  pool.query(query, [customerId, productIds, quantities], (err, results) => {
+  // Construct the SQL query
+  const query = `SELECT AddOrder(${uid}, '${productIDs}', '${quantities}')`;
+
+  // Execute the query
+  pool.query(query, (err, results) => {
     if (err) {
       res.status(500).send("Error processing order");
-      console.log(err);
+      console.error(err);
       return;
     }
     res.json(results);
@@ -124,7 +130,6 @@ app.post("/addproductstoinventory", (req, res) => {
   const { productIds, quantities } = req.body;
   const query = `SELECT AddProductsToInventory(?, ?);`;
 
-
   pool.query(query, [productIds, quantities], (err, results) => {
     if (err) {
       res.status(500).send("Error adding products to inventory");
@@ -134,7 +139,6 @@ app.post("/addproductstoinventory", (req, res) => {
     res.json(results);
   });
 });
-
 
 // Start the Express server
 app.listen(PORT, () => {
