@@ -1,8 +1,12 @@
 // app.js
 const express = require("express");
 const mysql = require("mysql2");
+const cors = require("cors");
+
 const app = express();
 const PORT = 3000;
+
+app.use(cors());
 
 app.use(express.json());
 
@@ -19,7 +23,76 @@ const pool = mysql.createPool({
 
 // Endpoint to get users
 app.get("/inventorystatus", (req, res) => {
-  const query = "SELECT * FROM InventoryStatus";
+  const query = "SELECT * FROM ProductAvailability";
+  pool.query(query, (err, results) => {
+    if (err) {
+      res.status(500).send("Error retrieving inventory");
+      console.log(err);
+      return;
+    }
+    res.json(results);
+  });
+});
+app.get("/productiondetails", (req, res) => {
+  const query = "SELECT * FROM ProductionDetails";
+  pool.query(query, (err, results) => {
+    if (err) {
+      res.status(500).send("Error retrieving inventory");
+      console.log(err);
+      return;
+    }
+    res.json(results);
+  });
+});
+
+app.get("/products", (req, res) => {
+  const query = "SELECT * FROM Products";
+  pool.query(query, (err, results) => {
+    if (err) {
+      res.status(500).send("Error retrieving inventory");
+      console.log(err);
+      return;
+    }
+    res.json(results);
+  });
+});
+app.get("/lowstockalerts", (req, res) => {
+  const query = "SELECT * FROM LowStockAlerts";
+  pool.query(query, (err, results) => {
+    if (err) {
+      res.status(500).send("Error retrieving inventory");
+      console.log(err);
+      return;
+    }
+    res.json(results);
+  });
+});
+app.get("/supplierdeliveryschedule", (req, res) => {
+  const query = "SELECT * FROM SupplierDeliverySchedule";
+  pool.query(query, (err, results) => {
+    if (err) {
+      res.status(500).send("Error retrieving inventory");
+      console.log(err);
+      return;
+    }
+    res.json(results);
+  });
+});
+
+app.get("/monthlysalesreport", (req, res) => {
+  const query = "SELECT * FROM MonthlySalesReport";
+  pool.query(query, (err, results) => {
+    if (err) {
+      res.status(500).send("Error retrieving inventory");
+      console.log(err);
+      return;
+    }
+    res.json(results);
+  });
+});
+
+app.get("/categories", (req, res) => {
+  const query = "SELECT * FROM Categories";
   pool.query(query, (err, results) => {
     if (err) {
       res.status(500).send("Error retrieving inventory");
@@ -32,6 +105,17 @@ app.get("/inventorystatus", (req, res) => {
 
 app.get("/MonthlySalesReport", (req, res) => {
   const query = "SELECT * FROM MonthlySalesReport";
+  pool.query(query, (err, results) => {
+    if (err) {
+      res.status(500).send("Error retrieving MonthlySalesReport");
+      console.log(err);
+      return;
+    }
+    res.json(results);
+  });
+});
+app.get("/CustomerPurchaseHistory", (req, res) => {
+  const query = "SELECT * FROM CustomerPurchaseHistory";
   pool.query(query, (err, results) => {
     if (err) {
       res.status(500).send("Error retrieving MonthlySalesReport");
@@ -105,6 +189,20 @@ app.post("/addcustomer", (req, res) => {
   });
 });
 
+app.post("/addcategory", (req, res) => {
+  const { category_name } = req.body;
+  const query = `CALL AddCategory(?);`;
+
+  pool.query(query, [category_name], (err, results) => {
+    if (err) {
+      res.status(500).send("Error adding customer");
+      console.log(err);
+      return;
+    }
+    res.json(results);
+  });
+});
+
 app.post("/addorder", (req, res) => {
   const { uid, order } = req.body;
 
@@ -137,6 +235,62 @@ app.post("/addproductstoinventory", (req, res) => {
       return;
     }
     res.json(results);
+  });
+});
+
+app.put("/edititem", (req, res) => {
+  const { id, name, category, price, quantity } = req.body;
+  const query = `CALL EditOrder(?, ?, ?, ?, ?);`;
+
+  pool.query(query, [id, name, category, price, quantity], (err, results) => {
+    if (err) {
+      res.status(500).send("Error editing order");
+      console.error(err);
+      return;
+    }
+    res.json(results);
+  });
+});
+
+app.post("/additem", (req, res) => {
+  const { name, category, price, quantity } = req.body;
+  const query = `CALL AddProduct(?, ?, ?, ?);`;
+
+  pool.query(query, [name, category, price, quantity], (err, results) => {
+    if (err) {
+      res.status(500).send("Error editing order");
+      console.error(err);
+      return;
+    }
+    res.json(results);
+  });
+});
+
+app.post("/addstock", (req, res) => {
+  const { product, supplier, quantity } = req.body;
+  const query = `CALL AddStock(?, ?, ?);`;
+
+  pool.query(query, [product, supplier, quantity], (err, results) => {
+    if (err) {
+      res.status(500).send("Error editing order");
+      console.error(err);
+      return;
+    }
+    res.json(results);
+  });
+});
+
+app.delete("/deleteproduct", (req, res) => {
+  const { product_id } = req.body;
+  const query = `CALL DeleteProduct(?);`;
+
+  pool.query(query, [product_id], (err, results) => {
+    if (err) {
+      res.status(500).send("Error deleting product");
+      console.error(err);
+      return;
+    }
+    res.json({ message: "Product deleted successfully", results });
   });
 });
 
